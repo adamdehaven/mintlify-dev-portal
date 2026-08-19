@@ -1,0 +1,120 @@
+---
+title: "Usage & Billing: Invoices, Payments, and Overages"
+sidebarTitle: "Usage & Billing"
+description: "Understand how billing works, where to find invoices, how to update your payment method, and what happens when you exceed your plan's monthly quota."
+---
+
+Billing on the Developer Portal is straightforward: you pay a flat subscription fee based on your chosen plan, and that fee covers a defined monthly request quota. You are not charged per API call within your quota — your costs are predictable and consistent from month to month. When your usage approaches or exceeds that quota, the portal gives you tools to monitor consumption in real time and, on eligible plans, handles overages transparently so your applications stay online.
+
+## How Billing Works
+
+Your subscription plan determines your monthly cost. The flat fee is charged automatically at the start of each billing period using your saved payment method. Within that period, you can make as many API requests as your plan allows without any additional charge.
+
+<Note>
+  When you upgrade mid-cycle, your account is charged a **prorated amount** for the remainder of the current billing period — you pay only for the days remaining at the new plan's rate. The difference is calculated automatically and reflected as a line item on your next invoice.
+</Note>
+
+## Understanding Your Usage
+
+To view your current period's usage:
+
+1. Navigate to **Account Settings → Usage**.
+2. Review the **Request Usage** card, which shows the number of requests made versus your plan's monthly quota, expressed as both a number and a percentage.
+3. Use the **API Breakdown** section to see per-API request counts, useful if you're subscribed to multiple APIs.
+4. Toggle the **Time Range** selector to view daily or hourly trends within the current billing period.
+
+<Tip>
+  Set up usage alerts in **Account Settings → Usage → Alerts** to receive an email notification when you've consumed 75% and 90% of your monthly quota. This gives you time to upgrade before hitting your limit.
+</Tip>
+
+## Overage Billing
+
+What happens when you exceed your plan's monthly request quota depends on your subscription tier:
+
+- **Free and Basic plans** — requests are **blocked** once your quota is exhausted. Your API calls return `429 Too Many Requests` until the next billing cycle begins. There is no overage charge.
+- **Pro plan** — requests beyond your quota are **billed at the overage rate** specified in your plan details (visible on the Plans & Pricing page). Your applications continue to function without interruption, and the overage charges appear as a line item on your next invoice.
+- **Enterprise plans** — overage behavior is defined by your contract. Most Enterprise agreements include either a large buffer before overage applies or a negotiated overage rate.
+
+<Warning>
+  On the Free and Basic plans, exceeding your quota blocks all API traffic until the next billing cycle. If uninterrupted availability is critical for your application, upgrade to Pro or higher so overages are billed rather than blocked.
+</Warning>
+
+## Finding Your Invoices and Billing History
+
+All invoices are available in the portal at any time:
+
+1. Navigate to **Account Settings → Billing**.
+2. Scroll to the **Billing History** section to see a list of all past invoices, each showing the invoice date, period covered, total amount, and payment status.
+3. Click any invoice row to open the full invoice detail view.
+
+## Understanding Your Invoice
+
+A typical invoice includes the following line items:
+
+| Line Item | Description |
+|---|---|
+| **Subscription — [Plan Name]** | Flat monthly fee for your plan |
+| **Proration credit** | Credit applied if you downgraded mid-cycle |
+| **Proration charge** | Additional charge if you upgraded mid-cycle |
+| **Overage — [API Name]** | Per-request charges above your plan quota (Pro/Enterprise only) |
+| **Tax** | Applicable taxes based on your billing address |
+| **Total** | Sum of all line items |
+
+The invoice header also shows the **billing period** (e.g., 1 Jan 2025 – 31 Jan 2025), your **billing address**, and the **last four digits** of the payment method charged.
+
+## Downloading Invoices
+
+To download an invoice as a PDF:
+
+1. Navigate to **Account Settings → Billing → Billing History**.
+2. Click the invoice you want to download.
+3. Click the **Download PDF** button in the top-right corner of the invoice detail view.
+
+You can download any invoice from your billing history at any time. PDFs are formatted for accounting and include all required fields for expense reporting.
+
+## Updating Your Payment Method
+
+<Steps>
+  <Step title="Open Billing Settings">
+    Navigate to **Account Settings → Billing** and click **Payment Methods**.
+  </Step>
+  <Step title="Add a New Card">
+    Click **Add Payment Method** and enter your new card details in the secure payment form. The portal uses Stripe to handle all card data — your full card number is never stored on the portal's servers.
+  </Step>
+  <Step title="Set as Default">
+    After saving, click **Set as Default** next to the new card if you want it used for future renewals.
+  </Step>
+  <Step title="Remove the Old Card">
+    Optionally, click **Remove** next to your previous payment method to delete it from your account. You cannot remove a card that is currently set as the default unless you set a different default first.
+  </Step>
+</Steps>
+
+<Note>
+  If a renewal payment fails (e.g., due to an expired card), the portal sends an email notification and retries the charge after 3 and 7 days. After three failed attempts, your account is downgraded to the Free plan until payment is resolved.
+</Note>
+
+## Canceling Your Subscription or Closing Your Account
+
+### Canceling Your Subscription
+
+To cancel your paid subscription without closing your account:
+
+1. Navigate to **Account Settings → Plans & Pricing**.
+2. Click **Cancel Subscription**.
+3. Select a reason for canceling (optional) and confirm.
+
+Your paid plan remains active until the end of the current billing period. After that, your account is automatically downgraded to the Free tier. No further charges are made, and your account data — API keys, usage history, and settings — is retained.
+
+### Closing Your Account
+
+To permanently close your account and delete all associated data:
+
+1. Navigate to **Account Settings → Profile** and scroll to the **Danger Zone** section.
+2. Click **Close Account**.
+3. Enter your password to confirm, then click **Permanently Close Account**.
+
+<Warning>
+  Closing your account is irreversible. All API keys are immediately revoked, your usage history is deleted, and any remaining subscription period is forfeited without a refund. Download any invoices you need before proceeding.
+</Warning>
+
+If you have an active paid subscription, cancel it first to avoid a charge on the closing date, then close the account. Alternatively, closing the account also cancels any active subscription simultaneously — the subscription is not refunded for the unused portion of the billing period.

@@ -1,0 +1,103 @@
+---
+title: "Manage Your API Subscriptions and Plans"
+sidebarTitle: "Subscriptions"
+description: "Subscribe to APIs from the catalog, view and change active plans, and understand exactly what happens to your access when you cancel."
+---
+
+Subscriptions are the foundation of your API access on the Developer Portal. Every API you want to call requires an active subscription to a plan, and each plan defines your rate limits, monthly quota, and available features. This guide covers the full subscription lifecycle — from browsing the catalog and subscribing for the first time, to changing plans mid-cycle and cancelling when you no longer need access — so you can manage your integrations with confidence.
+
+## Subscribe to a New API
+
+<Steps>
+  <Step title="Browse the API catalog">
+    Navigate to the **Catalog** from the main navigation. Use the search bar or category filters to find the API you want. Click an API card to open its details page, where you can read its documentation, review the available plans, and compare pricing.
+  </Step>
+
+  <Step title="Choose a plan">
+    On the API details page, scroll to the **Plans** section. Each plan lists its included monthly quota, rate limit, and price. Select the plan that fits your expected usage. If you are evaluating the API, most APIs offer a free tier so you can test before committing.
+  </Step>
+
+  <Step title="Confirm your subscription">
+    Click **Subscribe** on the plan you selected. A confirmation dialog will display the plan name, price, and billing cycle (monthly or annual). Review the details, then click **Confirm Subscription**. The portal will redirect you to your subscriptions dashboard where your new subscription will appear with a status of **Active**.
+  </Step>
+
+  <Step title="Generate an API key (if needed)">
+    If you do not already have an API key, go to **Account → API Keys** and click **New API Key**. Give the key a meaningful name (for example, `production-weather-api`) and click **Create**. Copy the key immediately — you will not be able to see the full value again. Associate the key with your new subscription from the API key settings if prompted.
+  </Step>
+</Steps>
+
+## View Your Active Subscriptions
+
+Navigate to **Account → Subscriptions** to see a full list of your active subscriptions. Each row shows:
+
+- **API name** and current plan tier
+- **Billing cycle** and next renewal date
+- **Usage** this period (requests used vs. quota)
+- **Status**: Active, Cancelled, or Past Due
+
+Click any subscription to open its detail view, where you can see invoices, plan history, and usage breakdowns.
+
+## Upgrade or Downgrade Your Plan
+
+You can change your plan at any time from the subscription detail page.
+
+<Steps>
+  <Step title="Open the subscription">
+    Go to **Account → Subscriptions** and click the subscription you want to modify.
+  </Step>
+
+  <Step title="Select Change Plan">
+    Click **Change Plan**. You will see all available tiers for that API with your current plan highlighted.
+  </Step>
+
+  <Step title="Choose the new tier">
+    Click **Select** on the plan you want to move to. A confirmation screen will show you a billing summary before any charge is made.
+  </Step>
+
+  <Step title="Confirm the change">
+    Click **Confirm Change**. Your new plan limits take effect immediately. Billing is prorated: upgrades are charged for the remainder of the current cycle, and downgrades apply a credit toward the next invoice.
+  </Step>
+</Steps>
+
+<Note>
+  **Mid-cycle billing:** When you upgrade mid-cycle, you are charged immediately for the prorated difference between your old and new plan. When you downgrade, the credit from your unused higher-tier days is applied to your next billing period — you will not receive a cash refund. Annual subscribers who downgrade mid-year receive a credit applied to future invoices.
+</Note>
+
+## Cancel a Subscription
+
+<Steps>
+  <Step title="Open the subscription detail page">
+    Go to **Account → Subscriptions** and click the subscription you want to cancel.
+  </Step>
+
+  <Step title="Initiate cancellation">
+    Click **Cancel Subscription** at the bottom of the page. A confirmation dialog will appear explaining exactly when your access ends and what will happen to your API key.
+  </Step>
+
+  <Step title="Confirm cancellation">
+    Click **Yes, Cancel Subscription** to confirm. The subscription status will change to **Cancels on [date]**, reflecting the end of your current paid period.
+  </Step>
+</Steps>
+
+### What happens to your API key after cancellation
+
+Your API key does **not** stop working immediately when you cancel. Access remains active until the end of your current billing period. On that date, any request made with a key associated with the cancelled subscription will receive an HTTP `403 Forbidden` response. The key itself remains in your account — it is simply no longer authorized for that API. If you re-subscribe, the same key will work again without requiring you to update your integration.
+
+<Warning>
+  Make sure to update or remove API keys associated with cancelled subscriptions from your production systems before the access end date to avoid unexpected `403` errors in your application.
+</Warning>
+
+## Re-subscribe After Cancellation
+
+If you need access again after cancelling, simply return to the **Catalog**, find the API, and follow the standard subscription flow. Your previous usage history is preserved and visible in the usage dashboard even after a gap in subscription. If you cancelled an annual plan, contact support to discuss re-activation options that may honor your original pricing.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Monitor Usage" icon="chart-line" href="/guides/monitoring-usage">
+    Track how much of your quota you are consuming and set up alerts before you hit limits.
+  </Card>
+  <Card title="Rate Limits & Quotas" icon="gauge-high" href="/guides/rate-limits-and-quotas">
+    Understand the difference between per-minute rate limits and monthly quotas.
+  </Card>
+</CardGroup>

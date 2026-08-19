@@ -1,0 +1,186 @@
+---
+title: "Troubleshooting Common API Integration Errors"
+sidebarTitle: "Troubleshooting"
+description: "Diagnose and fix the most common HTTP errors, authentication failures, and rate-limit issues you may encounter when integrating with portal APIs."
+---
+
+Even well-built integrations occasionally hit unexpected errors. This guide walks you through the most common HTTP status codes you'll encounter when working with Developer Portal APIs, explains what causes each one, and gives you concrete steps to resolve it. Work through the debugging checklist at the bottom before reaching out to support — it resolves the vast majority of issues without any back-and-forth.
+
+## Common Error Codes
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    **What it means:** The server received your request but could not verify your identity. Authentication failed before your request was processed.
+
+    **Common causes:**
+    - The `Authorization` header is missing entirely.
+    - The API key is malformed, expired, or has been revoked.
+    - You're using the wrong key for the target environment (e.g., a sandbox key against the production endpoint).
+    - The header format is incorrect — the portal expects `Bearer` token format, not a raw key.
+
+    **How to fix it:**
+
+    1. Confirm the header is present and correctly formatted:
+
+       ```http
+       GET /v1/resource HTTP/1.1
+       Host: api.example.com
+       Authorization: Bearer YOUR_API_KEY
+       ```
+
+    2. Open **Dashboard → API Keys** and verify the key is listed as **Active**. If it shows **Revoked** or **Expired**, generate a new key.
+    3. Make sure the key you're using has access to the API you're calling — keys can be scoped to specific APIs.
+    4. Double-check that no extra whitespace or invisible characters were introduced when you copied the key.
+
+    <Warning>
+      If you suspect a key has been compromised, revoke it immediately in the dashboard and generate a replacement before investigating further.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="403 Forbidden">
+    **What it means:** Your API key is valid and you are authenticated, but you are not authorized to access the requested resource. The server understood who you are — it just won't let you in.
+
+    **Common causes:**
+    - You haven't subscribed to the API you're trying to call.
+    - Your current plan doesn't include the specific endpoint or feature you're requesting.
+    - Your API key's scope doesn't cover this API.
+    - Your subscription has been suspended due to a billing issue.
+
+    **How to fix it:**
+
+    1. Go to **Dashboard → Subscriptions** and confirm you have an active subscription to the relevant API.
+    2. Check the API's plan comparison page — some endpoints are only available on higher-tier plans.
+    3. Review the key's scope under **Dashboard → API Keys**. If the key is restricted to certain APIs, add the missing API to its scope or generate a broader key.
+    4. Check **Dashboard → Billing** for any unpaid invoices or payment failures that may have suspended your account.
+
+    <Note>
+      A 403 is distinct from a 401: a 401 means "I don't know who you are," while a 403 means "I know who you are, but you can't do this." Always resolve 401s before investigating 403s.
+    </Note>
+  </Accordion>
+
+  <Accordion title="404 Not Found">
+    **What it means:** The endpoint URL you requested doesn't exist. This usually indicates a typo in the path, an incorrect API version, or a deprecated endpoint that has been removed.
+
+    **Common causes:**
+    - Incorrect base URL (e.g., using `api.example.com` instead of `api.example.com/v2`).
+    - Wrong API version in the path (e.g., calling `/v1/` when the API has migrated to `/v2/`).
+    - Typo in the resource path.
+    - Accessing a resource that has been deleted or doesn't exist yet.
+
+    **How to fix it:**
+
+    1. Open the API's detail page in the **API Catalog** and copy the base URL directly — don't type it by hand.
+    2. Check the API version: the current supported versions are listed on the API's documentation page under **Versions**.
+    3. Compare your path against the OpenAPI specification. Download it from the catalog and search for the operation you're trying to call.
+
+    ```bash
+    # Correct: version in path, no trailing slash issues
+    curl https://api.example.com/v2/users/123 \
+         -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    <Tip>
+      Import the OpenAPI spec into Postman or Insomnia and use the generated requests as a reference — this eliminates path and header typos entirely.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="429 Too Many Requests">
+    **What it means:** You've exceeded the rate limit or quota allowed by your current plan. The API is temporarily refusing further requests from your key.
+
+    **Common causes:**
+    - Sending more requests per second/minute/day than your plan allows.
+    - A burst of traffic (e.g., a retry storm) exhausted the limit rapidly.
+    - Multiple services or environments sharing the same API key, compounding usage.
+
+    **How to fix it:**
+
+    1. Read the rate-limit headers on every response to understand your current position:
+
+       | Header | Meaning |
+       |---|---|
+       | `X-RateLimit-Limit` | Total requests allowed in the window |
+       | `X-RateLimit-Remaining` | Requests left in the current window |
+       | `X-RateLimit-Reset` | Unix timestamp when the window resets |
+       | `Retry-After` | Seconds to wait before retrying |
+
+    2. Implement exponential backoff with jitter:
+
+       ```typescript
+       async function fetchWithBackoff(
+         url: string,
+         headers: Record<string, string>,
+         maxRetries = 5
+       ): Promise<Response> {
+         for (let attempt = 0; attempt < maxRetries; attempt++) {
+           const res = await fetch(url, { headers });
+           if (res.status !== 429) return res;
+
+           const retryAfter = res.headers.get("Retry-After");
+           const delay = retryAfter
+             ? parseInt(retryAfter, 10) * 1000
+             : Math.pow(2, attempt) * 1000 + Math.random() * 500;
+
+           await new Promise((r) => setTimeout(r, delay));
+         }
+         throw new Error("Max retries exceeded");
+       }
+       ```
+
+    3. Consider upgrading your plan if you're hitting limits regularly under normal load. Compare plan quotas on the API's pricing page.
+    4. Use separate API keys for development, staging, and production to avoid test traffic eating into your production quota.
+
+    <Warning>
+      Avoid immediately retrying on 429 without a delay — a retry storm will keep you rate-limited and may trigger a temporary block on your key.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="500 / 502 / 503 Server Errors">
+    **What it means:** Something went wrong on the API provider's side. These errors are not caused by your request — the server either crashed (500), received an invalid response from an upstream service (502), or is temporarily unavailable (503).
+
+    **Common causes:**
+    - Intermittent infrastructure issues on the provider's end.
+    - A deployment or configuration change in progress.
+    - High load on the provider's systems causing temporary degradation.
+
+    **How to fix it:**
+
+    1. Check the **Status Page** (linked in the portal footer) to see if there's an active incident or scheduled maintenance affecting the API.
+    2. Retry the request after a short delay. Server errors are often transient and resolve within seconds to minutes.
+    3. Use exponential backoff for retries — the same pattern used for 429 responses applies here.
+    4. If the error persists for more than 15 minutes and the status page shows no incident, open a support ticket and include:
+       - The full request URL and HTTP method.
+       - A sanitized copy of your request headers (remove the API key value).
+       - The complete response body and headers.
+       - The approximate timestamp (with timezone) when the error occurred.
+
+    <Info>
+      500-range errors are never caused by your API key or subscription status. You don't need to regenerate your key or change your plan to resolve them.
+    </Info>
+  </Accordion>
+</AccordionGroup>
+
+## Debugging Checklist
+
+Before opening a support ticket, run through this checklist — it resolves the majority of integration issues quickly:
+
+- [ ] **Confirm the API key is active.** Check **Dashboard → API Keys** and verify the key shows an **Active** status.
+- [ ] **Verify the Authorization header format.** The correct format is `Authorization: Bearer YOUR_API_KEY` — not `Token`, `Basic`, or a bare key.
+- [ ] **Check your subscription.** Open **Dashboard → Subscriptions** and confirm you have an active subscription to the API and that your plan includes the endpoint you're calling.
+- [ ] **Copy the base URL from the API catalog.** Don't rely on a URL you typed manually — open the API detail page and copy the base URL directly to rule out typos.
+- [ ] **Match your request to the OpenAPI spec.** Download the spec from the catalog and compare your path, method, and required parameters to the spec definition.
+- [ ] **Inspect the full response body.** Most APIs return a JSON error object with a `message` or `error` field that gives more context than the HTTP status code alone.
+- [ ] **Check the status page.** If you're seeing 5xx errors, visit the status page before spending time debugging your own code.
+
+## Contacting Support
+
+If you've worked through the checklist and the issue persists, the support team is here to help. To get a faster resolution, include the following in your ticket:
+
+- **Error code and message** — the HTTP status and the full response body.
+- **Request details** — the endpoint URL, HTTP method, and relevant request headers (with the API key value replaced by `[REDACTED]`).
+- **Timestamp** — when the error occurred, including your timezone.
+- **Reproduction steps** — a minimal example that reliably triggers the issue, ideally as a `curl` command.
+- **What you've already tried** — this helps the team skip steps you've already ruled out.
+
+<Note>
+  You can open a support ticket from **Dashboard → Support → New Ticket** or by emailing support@example.com. Enterprise plan customers have access to priority support with a guaranteed response SLA.
+</Note>

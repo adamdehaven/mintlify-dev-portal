@@ -1,0 +1,101 @@
+---
+title: "Developer Portal REST API: An Overview"
+sidebarTitle: "Introduction"
+description: "Explore the Developer Portal REST API — discover, integrate, and manage APIs with a single authenticated, versioned JSON interface."
+---
+
+The Developer Portal REST API gives you programmatic access to everything the platform offers: browsing the API catalog, managing subscriptions, reading usage metrics, and fetching API specifications. Every capability available in the portal UI is also available through this API, so you can automate onboarding workflows, build internal tooling, or embed portal functionality directly into your own applications.
+
+## Base URL
+
+All API requests are made over HTTPS to the following base URL:
+
+```
+https://api.example.com/v1
+```
+
+Never use plain HTTP — all requests over unencrypted connections are rejected.
+
+## Authentication
+
+Every request must include a valid API key passed as a Bearer token in the `Authorization` header. Requests without a valid key return `401 UNAUTHORIZED`. See the [Authentication](/api-reference/authentication) page for full details.
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Response Format
+
+All responses — including errors — are returned as JSON. Successful responses contain the requested resource or a `data` envelope. Error responses always include an `error` object with a `code`, `message`, and optional `details` field.
+
+## Versioning
+
+The API uses URL-based versioning. The current stable version is **v1**. When a new version is released (e.g. `v2`), the previous version remains available for a deprecation window so you have time to migrate. The version segment appears directly after the base domain:
+
+```
+https://api.example.com/v1/...
+https://api.example.com/v2/...
+```
+
+<Info>
+  Breaking changes are never introduced within a version. Non-breaking additions (new fields, new endpoints) may be added to an existing version at any time.
+</Info>
+
+## Example Request and Response
+
+The following example fetches a single API listing from the catalog:
+
+```bash
+curl --request GET \
+  --url https://api.example.com/v1/catalog/apis/payments-api \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Accept: application/json"
+```
+
+A successful response looks like this:
+
+```json
+{
+  "data": {
+    "id": "payments-api",
+    "name": "Payments API",
+    "version": "2.1.0",
+    "description": "Accept and manage payments across multiple currencies.",
+    "subscribed": true,
+    "specUrl": "https://api.example.com/v1/catalog/apis/payments-api/spec"
+  }
+}
+```
+
+## Quick Links
+
+<CardGroup cols={2}>
+  <Card
+    title="Authentication"
+    icon="key"
+    href="/api-reference/authentication"
+  >
+    Learn how to generate and pass API keys, understand key scopes, and troubleshoot auth errors.
+  </Card>
+  <Card
+    title="Error Reference"
+    icon="circle-exclamation"
+    href="/api-reference/errors"
+  >
+    Understand every error code the API returns and how to handle each one gracefully.
+  </Card>
+  <Card
+    title="API Catalog Endpoints"
+    icon="rectangle-list"
+    href="/api-reference/endpoints/catalog"
+  >
+    Browse, search, and fetch specifications for all APIs available in the portal.
+  </Card>
+  <Card
+    title="Subscriptions"
+    icon="badge-check"
+    href="/api-reference/endpoints/subscriptions"
+  >
+    Create, update, and cancel subscriptions to APIs from your developer account.
+  </Card>
+</CardGroup>

@@ -1,0 +1,221 @@
+---
+title: "Usage: Monitor API Request Volumes and Quota Consumption"
+sidebarTitle: "Usage"
+description: "Query usage metrics for your account. Track request volumes, error rates, quota consumption, and per-key breakdowns across any date range."
+---
+
+The Usage endpoints surface the request and quota data your team needs to operate APIs with confidence. Retrieve aggregate metrics for your entire account or drill into time-series data at hourly, daily, or monthly granularity to spot traffic trends and plan capacity. You can also break usage down by individual API key to identify which integrations are driving volume or approaching limits. All timestamps in request parameters and responses follow ISO 8601 format.
+
+---
+
+## Get Account Usage
+
+Retrieve aggregated usage metrics for your account over a specified time window. When you omit `from` and `to`, the response covers the current calendar period based on the selected `granularity`.
+
+`GET /usage`
+
+<ParamField query="api_id" type="string">
+  Limit the report to a single API. Omit this parameter to aggregate usage across all subscribed APIs.
+</ParamField>
+
+<ParamField query="from" type="string">
+  Start of the reporting window as an ISO 8601 datetime string (for example, `2024-03-01T00:00:00Z`). Defaults to the start of the current period when omitted.
+</ParamField>
+
+<ParamField query="to" type="string">
+  End of the reporting window as an ISO 8601 datetime string (for example, `2024-03-31T23:59:59Z`). Defaults to the current moment when omitted.
+</ParamField>
+
+<ParamField query="granularity" type="string" default="daily">
+  Resolution of the time-series data points in the `data` array. Accepted values are `hourly`, `daily`, and `monthly`. Finer granularity over long ranges returns more data points; consider using `monthly` for windows longer than 90 days.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://api.example.com/v1/usage?api_id=api_pay_01HX9Z&from=2024-03-01T00:00:00Z&to=2024-03-31T23:59:59Z&granularity=daily" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+### Response
+
+<ResponseField name="total_requests" type="integer">
+  Total number of API requests made during the reporting window.
+</ResponseField>
+
+<ResponseField name="successful_requests" type="integer">
+  Number of requests that returned a `2xx` HTTP status code.
+</ResponseField>
+
+<ResponseField name="error_requests" type="integer">
+  Number of requests that returned a `4xx` or `5xx` HTTP status code.
+</ResponseField>
+
+<ResponseField name="quota_limit" type="integer">
+  Maximum number of requests allowed in your current plan's quota period.
+</ResponseField>
+
+<ResponseField name="quota_used" type="integer">
+  Number of requests counted against your quota in the current quota period.
+</ResponseField>
+
+<ResponseField name="quota_remaining" type="integer">
+  Requests remaining before your quota is exhausted: `quota_limit - quota_used`.
+</ResponseField>
+
+<ResponseField name="period_start" type="string">
+  ISO 8601 timestamp for the start of the reported window.
+</ResponseField>
+
+<ResponseField name="period_end" type="string">
+  ISO 8601 timestamp for the end of the reported window.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of time-series data points, one per `granularity` interval.
+
+  <Expandable title="data[] object fields">
+    <ResponseField name="timestamp" type="string">
+      ISO 8601 timestamp representing the start of this interval.
+    </ResponseField>
+
+    <ResponseField name="requests" type="integer">
+      Total requests in this interval.
+    </ResponseField>
+
+    <ResponseField name="successful" type="integer">
+      Successful (`2xx`) requests in this interval.
+    </ResponseField>
+
+    <ResponseField name="errors" type="integer">
+      Error (`4xx`/`5xx`) requests in this interval.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json Example Response
+{
+  "total_requests": 84320,
+  "successful_requests": 82905,
+  "error_requests": 1415,
+  "quota_limit": 500000,
+  "quota_used": 84320,
+  "quota_remaining": 415680,
+  "period_start": "2024-03-01T00:00:00Z",
+  "period_end": "2024-03-31T23:59:59Z",
+  "data": [
+    {
+      "timestamp": "2024-03-01T00:00:00Z",
+      "requests": 2710,
+      "successful": 2668,
+      "errors": 42
+    },
+    {
+      "timestamp": "2024-03-02T00:00:00Z",
+      "requests": 3105,
+      "successful": 3060,
+      "errors": 45
+    },
+    {
+      "timestamp": "2024-03-03T00:00:00Z",
+      "requests": 2988,
+      "successful": 2944,
+      "errors": 44
+    }
+  ]
+}
+```
+
+<Note>
+  Quota counters reset at the start of each billing period. The `quota_used` and `quota_remaining` fields always reflect the current billing period, regardless of the `from` / `to` window you pass.
+</Note>
+
+---
+
+## Get Usage by API Key
+
+Break down usage across your API keys for the specified time window. This endpoint helps you attribute traffic to specific integrations, identify unused keys, and investigate keys that are generating elevated error rates.
+
+`GET /usage/keys`
+
+<ParamField query="from" type="string">
+  Start of the reporting window as an ISO 8601 datetime string. Defaults to the start of the current billing period when omitted.
+</ParamField>
+
+<ParamField query="to" type="string">
+  End of the reporting window as an ISO 8601 datetime string. Defaults to the current moment when omitted.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://api.example.com/v1/usage/keys?from=2024-03-01T00:00:00Z&to=2024-03-31T23:59:59Z" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+### Response
+
+Returns an array of per-key usage objects.
+
+<ResponseField name="key_id" type="string">
+  Unique identifier of the API key.
+</ResponseField>
+
+<ResponseField name="key_name" type="string">
+  Human-readable name assigned to the key when it was created.
+</ResponseField>
+
+<ResponseField name="key_prefix" type="string">
+  First 8 characters of the key, useful for visual identification without exposing the full value.
+</ResponseField>
+
+<ResponseField name="total_requests" type="integer">
+  Total requests made with this key during the reporting window.
+</ResponseField>
+
+<ResponseField name="successful_requests" type="integer">
+  Successful (`2xx`) requests made with this key.
+</ResponseField>
+
+<ResponseField name="error_requests" type="integer">
+  Error (`4xx`/`5xx`) requests made with this key.
+</ResponseField>
+
+<ResponseField name="last_used_at" type="string">
+  ISO 8601 timestamp of the most recent request made with this key, or `null` if the key has never been used.
+</ResponseField>
+
+```json Example Response
+{
+  "data": [
+    {
+      "key_id": "key_A1b2C3d4",
+      "key_name": "Production Backend",
+      "key_prefix": "pk_live_A",
+      "total_requests": 71440,
+      "successful_requests": 70230,
+      "error_requests": 1210,
+      "last_used_at": "2024-03-31T22:58:41Z"
+    },
+    {
+      "key_id": "key_E5f6G7h8",
+      "key_name": "Staging Environment",
+      "key_prefix": "pk_live_E",
+      "total_requests": 12880,
+      "successful_requests": 12675,
+      "error_requests": 205,
+      "last_used_at": "2024-03-31T18:14:07Z"
+    }
+  ]
+}
+```
+
+<Tip>
+  Use the `key_id` values returned here to manage or revoke individual keys via the [Accounts & Keys](/api-reference/endpoints/accounts) endpoints.
+</Tip>

@@ -1,0 +1,101 @@
+---
+title: "Metering & Usage: Quotas, Limits, and Monitoring"
+sidebarTitle: "Metering & Usage"
+description: "Learn how the portal measures your API consumption, where to view usage data, how quotas and rate limits work, and how to set up alerts before you hit a limit."
+---
+
+Metering is how the Developer Portal tracks the volume and nature of every API call your applications make. Every request routed through the portal is counted against your active subscription, giving you a real-time picture of how much of your plan's allowance you've consumed and how close you are to any limits. Understanding metering helps you right-size your subscription plan, avoid unexpected interruptions, and optimize how your application calls the APIs it depends on.
+
+## What Is Measured
+
+The portal records the following metrics for every active subscription:
+
+| Metric | Description |
+|---|---|
+| `requests.total` | Total number of API calls made in the current period |
+| `requests.successful` | Calls that returned a `2xx` HTTP status code |
+| `requests.errors` | Calls that returned a `4xx` or `5xx` HTTP status code |
+| `requests.rate_limited` | Calls rejected due to exceeding the per-minute or per-second rate limit |
+| `data.transfer.bytes` | Total bytes of response payload transferred (where reported by the API provider) |
+| `latency.p50_ms` | Median response latency in milliseconds |
+| `latency.p99_ms` | 99th-percentile response latency in milliseconds |
+
+<Info>
+Not all API providers report data transfer metrics. If `data.transfer.bytes` shows zero for a subscription, the provider has not enabled payload-size reporting for that API.
+</Info>
+
+## How Usage Resets
+
+When your quota counter resets depends on your plan type:
+
+- **Monthly billing cycle** — the counter resets on the same calendar date each month (your subscription anniversary). This is the most common model for paid plans.
+- **Rolling 30-day window** — the counter is calculated over the past 30 days at any given moment. As old requests age out, your available quota gradually replenishes. This model is typical for pay-as-you-go plans.
+
+Your subscription detail page shows which reset model applies to your plan, along with the exact next-reset date and time in UTC.
+
+## Quotas: Hard Limits vs. Soft Limits
+
+The portal enforces two distinct types of quota:
+
+**Hard limits** stop requests cold once the threshold is reached. Calls beyond a hard limit immediately receive a `429 Too Many Requests` response. Hard limits protect the API provider's infrastructure and are non-negotiable per plan.
+
+**Soft limits** (also called *warning thresholds*) do not block requests. Instead, they trigger notifications — in-portal banners, email alerts, or webhooks — to warn you that you're approaching your quota ceiling. You define soft-limit thresholds yourself in the Alerts settings (see [Setting Up Usage Alerts](#setting-up-usage-alerts) below).
+
+<Warning>
+Reaching a hard quota limit will interrupt live traffic immediately. Monitor your usage regularly and upgrade your plan or reduce call volume before you hit the ceiling.
+</Warning>
+
+## Rate Limits vs. Quotas
+
+These two concepts are related but distinct — it's important not to confuse them:
+
+| Concept | Time Window | Effect When Exceeded |
+|---|---|---|
+| **Rate limit** | Per second or per minute | Requests are rejected with `429` until the window resets |
+| **Quota** | Per month or per 30-day rolling window | All further requests are rejected until the period resets or you upgrade |
+
+Think of a **rate limit** as a speed cap — it controls how fast you can call the API in any short burst. Think of a **quota** as a total allowance — it controls how many calls you can make over a longer period. Both are plan-specific and visible on your subscription detail page.
+
+## Viewing Your Usage in the Dashboard
+
+To check current consumption:
+
+1. Go to **Dashboard → Subscriptions** and click the subscription you want to inspect.
+2. Select the **Usage** tab.
+3. View the summary bar showing `requests used / quota total` for the current period.
+4. Scroll down to see a time-series chart breaking down daily request volume, error rates, and latency percentiles.
+
+<Tip>
+Switch the chart time range between **Last 7 days**, **Last 30 days**, and **Current billing period** to identify traffic patterns and spot anomalies.
+</Tip>
+
+You can also export raw usage data as a CSV file by clicking **Export Usage** at the top of the Usage tab.
+
+## Setting Up Usage Alerts
+
+Alerts let you receive a notification before you hit a hard quota limit, giving you time to act. To configure an alert:
+
+1. Open the **Usage** tab for the relevant subscription.
+2. Click **Manage Alerts**.
+3. Click **Add Alert Rule** and configure:
+   - **Metric** — choose the metric to watch (e.g., `requests.total`).
+   - **Threshold** — enter a percentage of your quota (e.g., `80%`) or an absolute value (e.g., `40000` requests).
+   - **Notification channel** — select email, in-portal notification, or a webhook URL.
+4. Click **Save Rule**.
+
+You can create multiple alert rules per subscription — for example, one at 75% consumption and another at 95% — to give yourself escalating warnings.
+
+<Note>
+Webhook alerts send a `POST` request with a JSON payload to the URL you specify. This lets you trigger automated responses — such as switching to a backup API key or scaling down non-critical workloads — without manual intervention.
+</Note>
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Subscriptions" icon="id-card" href="/concepts/subscriptions">
+    Manage your subscription plans, upgrade tiers, and understand what each plan includes.
+  </Card>
+  <Card title="API Catalog" icon="grid-2" href="/concepts/apis-overview">
+    Browse available APIs, review plans, and find the right service for your application.
+  </Card>
+</CardGroup>

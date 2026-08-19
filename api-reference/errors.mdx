@@ -1,0 +1,102 @@
+---
+title: "API Error Codes and Response Format Reference"
+sidebarTitle: "Errors"
+description: "Every error the Developer Portal API returns follows a consistent JSON structure. Use this reference to identify codes and handle failures gracefully."
+---
+
+When a request cannot be completed successfully, the Developer Portal API responds with an appropriate HTTP status code and a JSON body that describes exactly what went wrong. Rather than leaving you to interpret raw status codes, every error response includes a machine-readable `code`, a human-readable `message`, and an optional `details` field for richer context. Building your error-handling logic around these fields lets you give users precise feedback and automate recovery strategies like retries and re-authentication.
+
+## Error Response Format
+
+All error responses share the same envelope structure:
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or missing API key",
+    "details": null
+  }
+}
+```
+
+<ResponseField name="error.code" type="string" required>
+  A stable, uppercase string identifier for the error type. Use this field in your application logic — the `message` text may change, but the `code` will not.
+</ResponseField>
+
+<ResponseField name="error.message" type="string" required>
+  A human-readable description of what went wrong, suitable for logging or displaying to a developer audience.
+</ResponseField>
+
+<ResponseField name="error.details" type="object | null">
+  Additional structured information about the error. For `422 UNPROCESSABLE_ENTITY` responses, this field contains a map of field names to validation failure messages. For other errors it is typically `null`.
+</ResponseField>
+
+## Error Code Reference
+
+| HTTP Status | Code | Description |
+|---|---|---|
+| `400` | `BAD_REQUEST` | The request is malformed — a required parameter is missing, has the wrong type, or contains an invalid value. |
+| `401` | `UNAUTHORIZED` | No API key was provided, or the key is invalid, expired, or malformed. |
+| `403` | `FORBIDDEN` | The API key is valid but lacks permission — you are not subscribed to the requested API or your quota has been exceeded. |
+| `404` | `NOT_FOUND` | The requested resource does not exist. Check the ID or slug in your request path. |
+| `409` | `CONFLICT` | The action conflicts with the current state of a resource — for example, attempting to create a subscription that already exists. |
+| `422` | `UNPROCESSABLE_ENTITY` | The request body was structurally valid JSON but failed semantic validation. Check `error.details` for field-level error messages. |
+| `429` | `TOO_MANY_REQUESTS` | You have exceeded the rate limit for this API key. Pause requests and check the `Retry-After` header. |
+| `500` | `INTERNAL_ERROR` | An unexpected error occurred on the server. Retry with exponential backoff; if the problem persists, contact support. |
+| `503` | `SERVICE_UNAVAILABLE` | The service is temporarily unavailable due to maintenance or an outage. Retry after a short delay. |
+
+## Validation Error Details (422)
+
+When the server returns `422 UNPROCESSABLE_ENTITY`, the `details` field contains an object mapping each invalid field to an array of messages:
+
+```json
+{
+  "error": {
+    "code": "UNPROCESSABLE_ENTITY",
+    "message": "Request body validation failed",
+    "details": {
+      "callbackUrl": ["Must be a valid HTTPS URL"],
+      "planId": ["Required field is missing"]
+    }
+  }
+}
+```
+
+Iterate over `error.details` in your client to surface precise validation messages to your users without parsing free-form text.
+
+## Rate Limiting and the Retry-After Header
+
+When you exceed a rate limit, the API responds with `429 TOO_MANY_REQUESTS` and includes a `Retry-After` header:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 14
+Content-Type: application/json
+
+{
+  "error": {
+    "code": "TOO_MANY_REQUESTS",
+    "message": "Rate limit exceeded. Retry after 14 seconds.",
+    "details": null
+  }
+}
+```
+
+The `Retry-After` value is an integer representing the number of **seconds** you must wait before making another request with the same key against the same API. Retrying before this window expires will continue to return `429` and will not reset the timer.
+
+<Warning>
+  Do not retry `429` responses immediately in a tight loop. Always read the `Retry-After` header and wait the specified duration. Repeated rapid retries may result in a longer backoff window being imposed.
+</Warning>
+
+## Retrying 500 and 503 Errors
+
+Server-side errors (`500 INTERNAL_ERROR` and `503 SERVICE_UNAVAILABLE`) are generally transient. Apply exponential backoff when retrying — for example, wait 1 s before the first retry, 2 s before the second, 4 s before the third, and so on, up to a maximum interval.
+
+<Tip>
+  Add jitter (a small random offset) to your retry delays to avoid thundering-herd problems when multiple clients retry simultaneously after an outage.
+</Tip>
+
+<Note>
+  `400`, `401`, `403`, `404`, `409`, and `422` errors are caused by the request itself and will not resolve by retrying. Fix the underlying issue in your request before trying again.
+</Note>

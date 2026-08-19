@@ -1,0 +1,153 @@
+---
+title: "API Keys: Create, Rotate, and Revoke Credentials"
+sidebarTitle: "API Keys"
+description: "Learn how to create, scope, rotate, and revoke API keys to authenticate your requests securely across every environment and integration."
+---
+
+API keys are the credentials your applications use to authenticate every request made through the Developer Portal. Each key is a unique, secret token that the portal associates with your account and subscription — allowing it to enforce rate limits, track usage, and grant access to the APIs you've subscribed to. Treating your API keys with the same care as passwords is essential: a leaked key can exhaust your quota, incur unexpected charges, or expose your subscriptions to abuse.
+
+## How API Keys Work
+
+When your application makes a request to an API endpoint, it includes your API key in the request header:
+
+```http
+GET /v1/some-endpoint HTTP/1.1
+Host: api.example.com
+Authorization: Bearer YOUR_API_KEY
+```
+
+The portal validates the key on every request, checks that it has the required scopes, and applies the rate limits associated with your active subscription plan. Requests with a missing, invalid, or revoked key receive a `401 Unauthorized` response.
+
+## Key Scopes
+
+When you create a key, you can restrict which APIs it may call:
+
+- **All subscribed APIs** — the key works with every API in your current subscriptions. Convenient for development environments where you access multiple APIs.
+- **Specific APIs** — the key is restricted to one or more APIs you select at creation time. Recommended for production services so a compromised key cannot access unrelated APIs.
+
+Scopes are set at creation and cannot be changed afterward. If you need a different scope, create a new key and revoke the old one.
+
+## Creating a New API Key
+
+<Steps>
+  <Step title="Open API Keys">
+    Navigate to **Account Settings → API Keys**. You'll see a list of all your existing keys, including their names, scopes, creation dates, and last-used timestamps.
+  </Step>
+  <Step title="Click Create Key">
+    Click the **Create Key** button in the top-right corner of the API Keys page.
+  </Step>
+  <Step title="Name Your Key">
+    Enter a descriptive name that identifies where and how the key will be used — for example, `Production App`, `CI Pipeline`, or `Local Dev`. A clear name makes it easy to audit and revoke specific keys later.
+  </Step>
+  <Step title="Select Scopes">
+    Choose **All subscribed APIs** or select individual APIs from the list. If you're unsure, start with specific APIs and expand later.
+  </Step>
+  <Step title="Confirm and Copy">
+    Click **Generate Key**. Your new API key is displayed **once** — copy it immediately and store it securely before closing the dialog.
+  </Step>
+</Steps>
+
+<Warning>
+  Your API key is shown only at the moment of creation and cannot be retrieved again afterward. If you close the dialog without copying the key, you must rotate or revoke it and create a new one.
+</Warning>
+
+## Viewing and Copying an Existing Key
+
+For security reasons, the portal never displays the full key value after creation. On the API Keys page you'll see only:
+
+- The key **name**
+- A **masked preview** of the last four characters (e.g., `••••••••a1b2`)
+- The **created date** and **last used** timestamp
+- The key's **scope**
+- Its **status** (Active, Rotated, or Revoked)
+
+If you've lost a key, you must rotate it to obtain a new value.
+
+## Rotating a Key
+
+Rotating a key generates a brand-new key value while keeping the old key active for a short grace period (typically 24 hours). This gives you time to update your applications without causing downtime.
+
+<Steps>
+  <Step title="Find the Key">
+    On the **API Keys** page, locate the key you want to rotate and click the **⋯ menu** on the right side of its row.
+  </Step>
+  <Step title="Select Rotate">
+    Click **Rotate Key**. The portal generates a new key value and displays it immediately.
+  </Step>
+  <Step title="Copy the New Key">
+    Copy the new key value right away — it will not be shown again.
+  </Step>
+  <Step title="Update Your Applications">
+    Replace the old key value with the new one in all environments and services that use it before the grace period expires.
+  </Step>
+</Steps>
+
+<Note>
+  During the grace period, both the old and new key values are valid. Once the grace period ends, the old value is permanently invalidated.
+</Note>
+
+## Revoking a Key
+
+Revoking immediately and permanently invalidates a key. Any request using a revoked key receives `401 Unauthorized` at once — there is no grace period.
+
+1. On the **API Keys** page, click the **⋯ menu** next to the key you want to revoke.
+2. Click **Revoke Key**.
+3. Confirm the action in the dialog that appears.
+
+Use revocation when you suspect a key has been compromised or when decommissioning a service entirely.
+
+## Storing Keys Securely
+
+Never hardcode API keys in source code or check them into version control. Use environment variables or a secrets manager instead.
+
+### Example `.env` File
+
+```bash
+# .env — never commit this file to source control
+# Add .env to your .gitignore
+
+# Production API key
+API_KEY=your_production_api_key_here
+
+# Staging API key
+STAGING_API_KEY=your_staging_api_key_here
+```
+
+Then read the key in your application at runtime:
+
+```javascript
+// Node.js example
+const apiKey = process.env.API_KEY;
+
+const response = await fetch("https://api.example.com/v1/endpoint", {
+  headers: {
+    Authorization: `Bearer ${apiKey}`,
+  },
+});
+```
+
+```python
+# Python example
+import os
+import requests
+
+api_key = os.environ["API_KEY"]
+
+response = requests.get(
+    "https://api.example.com/v1/endpoint",
+    headers={"Authorization": f"Bearer {api_key}"},
+)
+```
+
+## Best Practices
+
+<Tip>
+  Following these practices minimizes the blast radius if a key is ever accidentally exposed.
+</Tip>
+
+- **One key per environment** — use separate keys for local development, staging, and production. This way you can revoke a compromised development key without affecting production traffic.
+- **Descriptive names** — names like `Production App`, `CI Pipeline`, and `Mobile App iOS` make it immediately clear which service to update when rotating.
+- **Scope keys tightly** — restrict each key to only the APIs it actually needs. A key scoped to a single API cannot be abused to call your other subscribed APIs.
+- **Never commit to source control** — add `.env` to your `.gitignore` and use environment variables or a dedicated secrets manager (e.g., AWS Secrets Manager, HashiCorp Vault, Doppler).
+- **Audit regularly** — periodically review the **Last Used** timestamps on the API Keys page. Revoke any keys that haven't been used in 90 days or longer.
+- **Rotate proactively** — rotate keys on a regular schedule (e.g., every 90 days) rather than waiting for a suspected compromise.

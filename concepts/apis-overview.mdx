@@ -1,0 +1,87 @@
+---
+title: "Explore the API Catalog: Browse, Search, and Integrate"
+sidebarTitle: "API Catalog"
+description: "Discover every available API in one place. Search by category, review specs and plans, and start integrating the right API for your use case."
+---
+
+The API Catalog is the central directory of every API available on the Developer Portal. Whether you're looking for a payment processing API, a geolocation service, or an internal data provider, the catalog gives you a single, searchable place to discover what's available, compare plans, and access full technical specifications before writing a single line of code.
+
+## How APIs Are Organized
+
+APIs in the catalog are grouped to make discovery as fast as possible. You can browse by:
+
+- **Category** — functional groupings such as *Payments*, *Identity*, *Messaging*, or *Analytics*.
+- **Provider** — the company or team that publishes the API.
+- **Use case** — curated collections built around common developer scenarios, such as *Build a checkout flow* or *Add real-time notifications*.
+
+Use the left-hand filter panel to narrow the catalog to a single category or provider, or combine filters to find exactly what you need.
+
+## What Each API Listing Shows
+
+When you open an API listing, you'll see a summary card at the top of the page followed by detailed sections:
+
+| Field | What it tells you |
+|---|---|
+| **Name & Provider** | The API's display name and who publishes it |
+| **Description** | A short summary of what the API does |
+| **Latest Version** | The current stable version string (e.g., `v2.1.0`) |
+| **OpenAPI Spec** | A direct link to download or view the spec |
+| **Available Plans** | The subscription tiers you can choose from |
+
+## Searching and Filtering the Catalog
+
+The search bar at the top of the catalog page performs a full-text search across API names, descriptions, and tags. Results update instantly as you type.
+
+To apply filters, open the **Filters** panel on the left sidebar:
+
+1. Select one or more **Categories** to restrict results to a functional domain.
+2. Select one or more **Providers** to show only APIs from specific publishers.
+3. Use the **Plan Type** toggle to show only APIs with a free tier.
+
+Clear all active filters at any time by clicking **Reset filters** next to the search bar.
+
+## Viewing an API's Full Specification
+
+Every API listing links to its OpenAPI (formerly Swagger) specification. To view or download the spec:
+
+1. Open the API listing from the catalog.
+2. Click **View Specification** in the top-right corner of the listing page.
+3. The spec opens in the built-in API reference viewer, where you can browse endpoints, schemas, and example requests interactively.
+4. To download the raw file, click **Download OpenAPI Spec** and choose JSON or YAML format.
+
+<Tip>
+Paste the downloaded spec URL directly into tools like Postman, Insomnia, or code generators to scaffold an API client automatically.
+</Tip>
+
+## API Versioning
+
+APIs on the portal follow semantic versioning (`MAJOR.MINOR.PATCH`). A new major version (e.g., `v1` → `v2`) indicates breaking changes; minor and patch versions are backward-compatible.
+
+**How versions work in the catalog:**
+
+- The catalog always displays the **latest stable version** by default.
+- Previous versions remain accessible from the **Versions** tab on any API listing page.
+- Each version has its own independent OpenAPI spec and changelog entry.
+
+**Pinning to a specific version:**
+
+If your integration depends on a specific version, pin it in the portal so your credentials and subscription are tied to that version's contract. To pin:
+
+1. Open the API listing and click the **Versions** tab.
+2. Select the version you want to pin.
+3. Click **Subscribe to this version** and complete the subscription flow.
+
+<Note>
+When the API provider marks a version as **deprecated**, you'll receive an in-portal notification and an email with migration guidance and a sunset date.
+</Note>
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Subscriptions" icon="id-card" href="/concepts/subscriptions">
+    Learn how to subscribe to an API, choose a plan, and manage your subscription lifecycle.
+  </Card>
+  <Card title="Making Your First Request" icon="bolt" href="/guides/making-your-first-request">
+    Follow a step-by-step guide to authenticate and send your first API call after subscribing.
+  </Card>
+</CardGroup>

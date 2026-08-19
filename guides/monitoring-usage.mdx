@@ -1,0 +1,108 @@
+---
+title: "Monitor API Usage, Metrics, and Alerts"
+sidebarTitle: "Monitor Usage"
+description: "View request volume, error rates, and latency in the usage dashboard, set threshold alerts, and export data for external analysis."
+---
+
+Understanding how your applications consume APIs is essential for maintaining reliability, controlling costs, and catching problems before they affect your users. The Developer Portal gives you a real-time usage dashboard where you can explore request volumes, success and error rates, latency percentiles, and per-key breakdowns — all without leaving the portal. This guide explains where to find your usage data, how to interpret the charts, how to set up proactive alerts, and what to do when the numbers look unexpected.
+
+## Where to Find Your Usage Data
+
+Navigate to **Account → Usage** from the top navigation bar. The Usage dashboard loads with a summary view of all your active subscriptions for the current calendar month. You can also reach the usage view for a specific API directly from **Account → Subscriptions** by clicking an active subscription and selecting the **Usage** tab.
+
+## Metrics Shown in the Dashboard
+
+The dashboard surfaces four core metric categories:
+
+| Metric | Description |
+|--------|-------------|
+| **Total Requests** | Cumulative count of all API calls made in the selected period |
+| **Success Rate** | Percentage of requests that returned a `2xx` status code |
+| **Error Rate** | Percentage of requests that returned a `4xx` or `5xx` status code |
+| **Latency Percentiles** | p50, p95, and p99 response times in milliseconds |
+
+<Info>
+  Latency figures reflect the time measured at the gateway, from when the request is received to when the first byte of the response is sent. They do not include network transit time between your client and the gateway.
+</Info>
+
+## Filter Your Data
+
+Use the filter bar at the top of the usage dashboard to narrow the data you see:
+
+- **API** — Select one or more subscribed APIs to compare usage side by side.
+- **Date range** — Choose a preset window (Last 24 hours, Last 7 days, Last 30 days) or define a custom date range using the calendar picker.
+- **API Key** — Isolate traffic from a specific key to diagnose issues or attribute usage to a particular environment (for example, `production` vs. `staging`).
+
+All charts and metric cards update immediately when you apply a filter. You can combine filters — for example, viewing only the last 7 days of requests from your production key on a single API.
+
+## Understanding the Usage Chart
+
+The main chart supports two display modes, toggled with the **Cumulative / Daily** switch above the graph:
+
+- **Cumulative view** — Shows a running total of requests from the start of the selected period. An upward slope is normal; a sudden flattening may indicate an outage or a quota exhaustion event.
+- **Daily breakdown view** — Shows a bar for each day (or hour, for shorter windows) so you can spot spikes, drops, and weekly patterns at a glance.
+
+Hover over any data point on the chart to see exact numbers for that interval, broken down by status code category.
+
+## Set Up Usage Alerts
+
+Alerts notify you by email when your usage crosses a threshold you define — useful for catching unexpected spikes before you hit a quota limit or incur overage charges.
+
+<Steps>
+  <Step title="Open Alert Settings">
+    From the Usage dashboard, click **Manage Alerts** in the top-right corner of the page. This opens the Alerts panel for your account.
+  </Step>
+
+  <Step title="Create a new alert">
+    Click **New Alert**. A form appears asking for:
+    - **API** — The specific API this alert applies to (or "All APIs")
+    - **Metric** — Choose from Total Requests, Error Rate, or Latency (p95)
+    - **Condition** — Select **greater than** or **less than**
+    - **Threshold** — Enter the numeric value that triggers the alert (for example, `10000` requests or `5` percent error rate)
+    - **Time window** — The rolling window to evaluate (1 hour, 24 hours, or 7 days)
+  </Step>
+
+  <Step title="Configure notification recipients">
+    Enter one or more email addresses to notify when the alert fires. By default, the alert sends to the email address on your account. You can add team members or a shared distribution list.
+  </Step>
+
+  <Step title="Save and activate the alert">
+    Click **Save Alert**. The alert becomes active immediately and appears in your alert list with a status of **Monitoring**. You can pause, edit, or delete any alert from this list at any time.
+  </Step>
+</Steps>
+
+<Tip>
+  Set your alert threshold at 80% of your plan quota so you have time to upgrade or adjust your integration before you hit the hard limit.
+</Tip>
+
+## Export Usage Data
+
+To download your usage data for analysis in a spreadsheet, BI tool, or custom reporting pipeline:
+
+1. Apply the filters you want (API, date range, API key) in the usage dashboard.
+2. Click the **Export** button in the top-right corner of the dashboard.
+3. Select **CSV** as the export format.
+4. Click **Download**. The file downloads immediately to your browser.
+
+The CSV includes one row per hour (or per day for ranges longer than 90 days) with columns for timestamp, API name, API key name, total requests, success count, error count, p50 latency (ms), p95 latency (ms), and p99 latency (ms).
+
+## What to Do If Usage Seems Higher Than Expected
+
+If your request count is higher than you anticipated, work through these checks in order:
+
+1. **Filter by API key** — Identify which key is generating the extra traffic. An old key you forgot to retire may still be in use somewhere.
+2. **Check your error rate** — A high error rate combined with high request volume often points to a misconfigured retry loop. If your client retries every failed request immediately and aggressively, a single bad request can multiply into hundreds.
+3. **Look for duplicate calls** — Review your application code for places where the same endpoint is called multiple times per user action, or where caching could reduce redundant requests.
+4. **Review the daily breakdown** — A spike on a specific day may correlate with a deployment, a marketing campaign, or a cron job that ran unexpectedly.
+5. **Contact support** — If you cannot identify the source of unexpected usage after these checks, open a support ticket from the portal. Include a date range and the API key name so the support team can investigate server-side logs on your behalf.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Rate Limits & Quotas" icon="gauge-high" href="/guides/rate-limits-and-quotas">
+    Learn how rate limits and quotas work, and how to handle limit responses gracefully.
+  </Card>
+  <Card title="Manage Subscriptions" icon="credit-card" href="/guides/managing-subscriptions">
+    Upgrade your plan if you are approaching your monthly quota ceiling.
+  </Card>
+</CardGroup>

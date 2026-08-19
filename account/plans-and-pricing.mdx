@@ -1,0 +1,123 @@
+---
+title: "Plans & Pricing: Choose the Right Subscription Tier"
+sidebarTitle: "Plans & Pricing"
+description: "Compare Free, Basic, Pro, and Enterprise subscription tiers, understand what's included in each plan, and learn how to upgrade or downgrade at any time."
+---
+
+The Developer Portal offers a range of subscription plans designed to grow with your usage — from experimenting with a single API at no cost to running high-volume production workloads with dedicated support and custom quotas. Each plan defines the monthly request allowance, rate limits, and level of support you receive. Choosing the right plan upfront keeps your applications running smoothly and avoids unexpected overage charges or throttling.
+
+## Available Plan Tiers
+
+The tiers below are example plans intended to illustrate a typical tiered structure. Actual pricing and limits shown in your portal may differ based on the specific APIs you've subscribed to or promotions applied to your account.
+
+<Note>
+  The **Free tier** is designed for exploration and prototyping only. It carries strict rate limits, no SLA, and no access to premium support. For any application serving real users, consider upgrading to at least the Basic plan.
+</Note>
+
+### Plan Comparison
+
+| Feature | Free | Basic | Pro | Enterprise |
+|---|---|---|---|---|
+| **Requests / month** | 10,000 | 500,000 | 5,000,000 | Custom |
+| **Rate limit** | 10 req / sec | 100 req / sec | 500 req / sec | Custom |
+| **API key slots** | 2 | 5 | 20 | Unlimited |
+| **Team members** | 1 | 1 | 10 | Unlimited |
+| **Overage handling** | Requests blocked | Requests blocked | Billed at overage rate | Negotiated |
+| **Support** | Community forums | Email (72 h SLA) | Email + chat (24 h SLA) | Dedicated CSM + phone |
+| **Uptime SLA** | None | 99.5% | 99.9% | 99.99% |
+| **Price / month** | $0 | $29 | $149 | Contact sales |
+
+### Free
+
+The Free plan lets you explore the portal's API catalogue and test integrations at no cost. It's ideal for side projects, hackathons, and initial proof-of-concept work. There are no credit-card requirements to get started.
+
+### Basic
+
+The Basic plan is suited for small applications and internal tools with moderate traffic. You get significantly higher request limits than Free, email support with a 72-hour response SLA, and the ability to create up to five API keys for different environments.
+
+### Pro
+
+The Pro plan is built for production workloads. You can onboard a team of up to ten developers, create up to 20 API keys, and reach out via chat for faster support responses. Pro is also the first tier that enables **overage billing** rather than hard-blocking requests when you exceed your monthly quota.
+
+### Enterprise
+
+Enterprise plans are fully customized to your organization's needs. Volume pricing, dedicated quota pools across multiple APIs, a named Customer Success Manager, and phone support are all available. SLAs are negotiated and legally binding.
+
+## Choosing the Right Plan
+
+Consider the following when selecting a plan:
+
+- **Monthly request volume** — look at your average and peak daily request counts. Multiply your peak by 31 to estimate monthly usage, then add a 20–30% buffer.
+- **Rate-limit tolerance** — if your application bursts traffic (e.g., batch jobs), ensure the plan's per-second rate limit won't throttle you during spikes.
+- **Team size** — if more than one developer needs access to API keys or usage dashboards, you need at least the Pro plan.
+- **Overage behavior** — if uninterrupted service is critical, choose Pro or Enterprise so that requests over your quota are billed rather than blocked.
+
+<Tip>
+  Start on the Free or Basic plan and upgrade when your usage metrics approach 70% of the plan's monthly limit. You'll find these metrics in **Account → Usage**.
+</Tip>
+
+## Upgrading Your Plan
+
+<Steps>
+  <Step title="Open Subscription Settings">
+    Navigate to **Account Settings → Plans & Pricing**.
+  </Step>
+  <Step title="Select a New Plan">
+    Review the plan comparison table and click **Upgrade** on the plan you want.
+  </Step>
+  <Step title="Confirm Payment">
+    Review the proration details showing how your current billing period is adjusted, then confirm with your saved payment method or enter a new one.
+  </Step>
+  <Step title="Upgrade Takes Effect Immediately">
+    Your new request limits, rate limits, and features are available as soon as the upgrade is confirmed. You do not need to wait for your next billing cycle.
+  </Step>
+</Steps>
+
+## Downgrading Your Plan
+
+<Steps>
+  <Step title="Open Subscription Settings">
+    Navigate to **Account Settings → Plans & Pricing** and click **Change Plan**.
+  </Step>
+  <Step title="Select a Lower Tier">
+    Choose the plan you'd like to move to and click **Downgrade**.
+  </Step>
+  <Step title="Review the Impact">
+    The portal displays any features or resources you'll lose — for example, a reduction in API key slots or team member seats. Remove excess keys or team members before confirming if prompted.
+  </Step>
+  <Step title="Schedule or Confirm">
+    Downgrades take effect at the **end of your current billing period** so you retain access to your paid features until the cycle closes.
+  </Step>
+</Steps>
+
+<Note>
+  If you're downgrading from Pro and currently have more than five API keys, you must reduce your key count to five (the Basic limit) before the downgrade takes effect. Keys deleted during this process are immediately revoked.
+</Note>
+
+## Enterprise Plans
+
+For organizations with high-volume requirements, regulatory compliance needs, or complex multi-API workflows, Enterprise plans offer:
+
+- **Custom request quotas** negotiated to your traffic patterns
+- **Dedicated infrastructure** for predictable latency
+- **Legally binding SLAs** with uptime guarantees up to 99.99%
+- **Dedicated Customer Success Manager** for onboarding and ongoing support
+- **Phone and priority escalation** support channels
+- **Annual billing with volume discounts**
+- **Custom contract terms** including DPAs and BAAs where required
+
+To discuss Enterprise pricing, click **Contact Sales** on the Plans & Pricing page, or reach out directly to [sales@example.com](mailto:sales@example.com).
+
+## Billing Cycles
+
+All plans default to **monthly billing**, charged on the same date each month (your subscription start date). You can switch to **annual billing** at any time from **Account Settings → Billing**, which typically provides a **15–20% discount** compared to 12 months of monthly payments.
+
+### End of Billing Period
+
+At the end of each billing period:
+
+- Your monthly request counter **resets to zero**.
+- Any unused requests from the previous period do **not** roll over.
+- Your subscription automatically renews at the same plan and price unless you've made a change.
+- A new invoice is generated and your saved payment method is charged.
+- You'll receive an email receipt confirming the renewal.

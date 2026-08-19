@@ -1,13 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
+  "projectType": "saas",
+  "projectName": "Developer Portal",
+  "projectDescription": "A developer portal for exploring and integrating APIs, managing subscriptions and usage metering, and accessing technical guides and API specifications.",
   "theme": "luma",
-  "name": "Developer Portal",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -81,20 +79,27 @@
       }
     ]
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@example.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Sign In",
-      "href": "https://portal.example.com/login"
-    }
-  },
-  "footer": {
-    "socials": {}
-  }
+  "keyFeatures": [
+    "API catalog and discovery",
+    "Subscription management",
+    "Usage metering and analytics",
+    "API key management",
+    "Plans and pricing tiers",
+    "Developer guides and tutorials",
+    "OpenAPI specifications",
+    "Rate limiting and quota enforcement"
+  ],
+  "publicApiSurface": [
+    "GET /catalog — list available APIs",
+    "GET /catalog/{apiId} — get API details and specification",
+    "POST /subscriptions — subscribe to an API",
+    "GET /subscriptions — list active subscriptions",
+    "DELETE /subscriptions/{id} — cancel a subscription",
+    "GET /usage — retrieve usage metrics and metering data",
+    "POST /keys — create an API key",
+    "GET /keys — list API keys",
+    "DELETE /keys/{id} — revoke an API key",
+    "GET /account — get account details",
+    "GET /plans — list available subscription plans"
+  ]
 }

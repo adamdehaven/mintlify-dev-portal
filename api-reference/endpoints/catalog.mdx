@@ -1,0 +1,175 @@
+---
+title: "API Catalog: Browse and Discover All Available APIs"
+sidebarTitle: "Catalog"
+description: "Browse and search every API in the Developer Portal. Filter by category, compare plans, and fetch full specifications before subscribing."
+---
+
+The Catalog endpoints give you a unified view of every API published in the Developer Portal. Use them to discover new integrations, filter APIs by category or keyword, and pull the full specification and plan details you need before subscribing. All catalog endpoints are read-only and require a valid Bearer token.
+
+---
+
+## List All APIs
+
+<ParamField query="category" type="string">
+  Filter results to a specific API category (for example, `"payments"`, `"messaging"`, or `"identity"`). Omit to return APIs across all categories.
+</ParamField>
+
+<ParamField query="search" type="string">
+  Full-text search term matched against API names and descriptions. Returns APIs whose name or description contains the provided string.
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number to retrieve. Starts at `1`. Use together with `per_page` to paginate through large result sets.
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="20">
+  Number of results per page. Accepts values between `1` and `100`. Defaults to `20`.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://api.example.com/v1/catalog?category=payments&page=1&per_page=20" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+### Response
+
+<ResponseField name="id" type="string">
+  Unique identifier for the API. Use this value as `api_id` when subscribing or querying usage.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Human-readable name of the API.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Short summary describing what the API does and its primary use case.
+</ResponseField>
+
+<ResponseField name="category" type="string">
+  The category this API belongs to (for example, `"payments"` or `"messaging"`).
+</ResponseField>
+
+<ResponseField name="version" type="string">
+  Current stable version of the API (for example, `"v2.1.0"`).
+</ResponseField>
+
+<ResponseField name="spec_url" type="string">
+  URL pointing to the OpenAPI specification document for this API.
+</ResponseField>
+
+<ResponseField name="available_plans" type="array">
+  List of subscription plan names available for this API (for example, `["free", "basic", "pro"]`).
+</ResponseField>
+
+```json Example Response
+{
+  "data": [
+    {
+      "id": "api_pay_01HX9Z",
+      "name": "Payments API",
+      "description": "Process payments, refunds, and payouts across 135+ currencies with a single integration.",
+      "category": "payments",
+      "version": "v2.1.0",
+      "spec_url": "https://api.example.com/v1/specs/payments-v2.1.0.json",
+      "available_plans": ["free", "basic", "pro"]
+    },
+    {
+      "id": "api_msg_02KY7A",
+      "name": "Messaging API",
+      "description": "Send SMS, push notifications, and in-app messages to users at scale.",
+      "category": "messaging",
+      "version": "v1.4.2",
+      "spec_url": "https://api.example.com/v1/specs/messaging-v1.4.2.json",
+      "available_plans": ["basic", "pro"]
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 2
+  }
+}
+```
+
+---
+
+## Get a Single API
+
+Retrieve the full details for a specific API by its unique identifier, including endpoint counts and creation metadata.
+
+`GET /catalog/{api_id}`
+
+<ParamField path="api_id" type="string" required>
+  The unique identifier of the API to retrieve. You can obtain this value from the `id` field in the [List All APIs](#list-all-apis) response.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://api.example.com/v1/catalog/api_pay_01HX9Z" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+### Response
+
+<ResponseField name="id" type="string">
+  Unique identifier for the API.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Human-readable name of the API.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Full description of the API and its capabilities.
+</ResponseField>
+
+<ResponseField name="category" type="string">
+  Category the API belongs to.
+</ResponseField>
+
+<ResponseField name="version" type="string">
+  Current stable version string.
+</ResponseField>
+
+<ResponseField name="spec_url" type="string">
+  URL to the OpenAPI specification document.
+</ResponseField>
+
+<ResponseField name="available_plans" type="array">
+  Subscription plan names available for this API.
+</ResponseField>
+
+<ResponseField name="endpoints_count" type="integer">
+  Total number of individual endpoints exposed by this API.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp indicating when this API was published to the catalog.
+</ResponseField>
+
+```json Example Response
+{
+  "id": "api_pay_01HX9Z",
+  "name": "Payments API",
+  "description": "Process payments, refunds, and payouts across 135+ currencies with a single integration. Supports card, bank transfer, and digital wallet payment methods.",
+  "category": "payments",
+  "version": "v2.1.0",
+  "spec_url": "https://api.example.com/v1/specs/payments-v2.1.0.json",
+  "available_plans": ["free", "basic", "pro"],
+  "endpoints_count": 24,
+  "created_at": "2024-01-15T08:30:00Z"
+}
+```
+
+<Note>
+  The `spec_url` field points to a machine-readable OpenAPI document you can import directly into tools like Postman, Insomnia, or your own SDK generator.
+</Note>

@@ -1,0 +1,148 @@
+---
+title: "Frequently Asked Questions About the Developer Portal"
+sidebarTitle: "FAQ"
+description: "Find answers to the most common questions about signing up, managing subscriptions, and integrating APIs through the Developer Portal."
+---
+
+Whether you're just getting started or troubleshooting a specific issue, this page collects the most common questions developers ask about the Developer Portal. Browse by theme to quickly find what you need — and if your question isn't covered here, visit the [Troubleshooting](/support/troubleshooting) guide or reach out to the support team directly.
+
+## Getting Started
+
+<AccordionGroup>
+  <Accordion title="How do I sign up for the Developer Portal?">
+    To create an account, navigate to the Developer Portal homepage and click **Sign Up**. Enter your email address, choose a password, and verify your email using the confirmation link we send you. Once verified, you can log in and begin exploring the API catalog immediately.
+
+    <Tip>
+      If you're joining as part of an organization, ask your team admin to send you an invite link — this automatically associates your account with the correct workspace and billing plan.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="How do I get an API key?">
+    After logging in, go to **Dashboard → API Keys** and click **Generate New Key**. Give your key a descriptive name (for example, `production-payments` or `dev-testing`), select the scope of APIs it should have access to, and click **Create**.
+
+    Your new key appears once — copy it immediately and store it securely (for example, in a secrets manager or environment variable). If you lose it, you'll need to revoke it and generate a replacement.
+
+    ```bash
+    # Example: pass your API key as a Bearer token
+    curl -H "Authorization: Bearer YOUR_API_KEY" \
+         https://api.example.com/v1/resource
+    ```
+
+    <Warning>
+      Never commit API keys to source control. Use environment variables or a secrets vault instead.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Can I use the portal without a subscription?">
+    Yes — you can browse the API catalog, read API documentation, and view OpenAPI specifications without subscribing to anything. However, to make live API calls you must subscribe to at least one API plan. Many APIs offer a **Free tier** that lets you get started with a limited quota at no cost.
+  </Accordion>
+
+  <Accordion title="Which APIs are available?">
+    Open the **API Catalog** from the top navigation to see every API available on the portal. You can filter by category (such as Payments, Identity, or Data Enrichment), search by keyword, or sort by popularity. Each API listing includes a description, version history, pricing plans, and a link to its full OpenAPI specification.
+
+    <Info>
+      New APIs are added regularly. Subscribe to portal release notes or watch the [Changelog](/support/changelog) page to stay informed about additions.
+    </Info>
+  </Accordion>
+</AccordionGroup>
+
+## Subscriptions & Billing
+
+<AccordionGroup>
+  <Accordion title="How do I upgrade or downgrade my plan?">
+    Go to **Dashboard → Subscriptions**, find the API whose plan you want to change, and click **Manage Plan**. Select the new tier and confirm. Upgrades take effect immediately and are prorated for the remainder of your billing cycle. Downgrades take effect at the start of the next billing cycle so you retain your current quota until then.
+
+    <Note>
+      Some APIs have custom or enterprise plans that aren't available via self-service. Contact the API provider directly if you need a negotiated quota or SLA.
+    </Note>
+  </Accordion>
+
+  <Accordion title="What happens if I exceed my quota?">
+    When you exceed your plan's request quota, the API returns a **429 Too Many Requests** response for any additional calls until your quota resets. The exact reset schedule (hourly, daily, or monthly) is shown on each API's plan page.
+
+    To avoid disruptions you can:
+    - Upgrade to a higher-tier plan before hitting the limit.
+    - Implement retry logic with exponential backoff in your application.
+    - Monitor your usage in real time on the **Usage Dashboard**.
+
+    <Warning>
+      Some APIs enforce hard limits with no burst allowance. Check the API's rate-limit policy before going to production.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Can I subscribe to multiple APIs?">
+    Absolutely. You can subscribe to as many APIs as you need — each subscription is managed independently under **Dashboard → Subscriptions**. Each API has its own quota, billing cycle, and pricing tier, so you're billed separately per API.
+  </Accordion>
+
+  <Accordion title="How do I cancel my subscription?">
+    Navigate to **Dashboard → Subscriptions**, select the subscription you want to cancel, and click **Cancel Subscription**. Your access continues until the end of the current billing period, after which the subscription is deactivated and your API key loses access to that API.
+
+    <Note>
+      Cancellation is immediate for free-tier plans. For paid plans, you retain access for the remainder of the period you've already paid for — no partial refunds are issued.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## Technical
+
+<AccordionGroup>
+  <Accordion title="Why am I getting a 401 Unauthorized error?">
+    A 401 response means the server could not authenticate your request. The most common causes are:
+
+    - **Missing Authorization header** — make sure every request includes `Authorization: Bearer YOUR_API_KEY`.
+    - **Expired or revoked key** — check **Dashboard → API Keys** to confirm the key is still active.
+    - **Wrong key for the environment** — verify you're using the correct key for the target environment (development vs. production).
+
+    ```http
+    GET /v1/resource HTTP/1.1
+    Host: api.example.com
+    Authorization: Bearer YOUR_API_KEY
+    ```
+  </Accordion>
+
+  <Accordion title="Why am I getting a 429 Too Many Requests error?">
+    A 429 response means you've exhausted your rate limit or quota for the current window. Check the `Retry-After` header in the response — it tells you how many seconds to wait before retrying.
+
+    Best practices for handling 429s:
+
+    1. Read the `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers on every response.
+    2. Implement exponential backoff with jitter in your retry logic.
+    3. Cache responses where possible to reduce the number of API calls.
+    4. Consider upgrading your plan if you hit rate limits regularly.
+
+    ```python
+    import time, requests
+
+    def call_with_backoff(url, headers, max_retries=5):
+        for attempt in range(max_retries):
+            response = requests.get(url, headers=headers)
+            if response.status_code == 429:
+                wait = int(response.headers.get("Retry-After", 2 ** attempt))
+                time.sleep(wait)
+                continue
+            return response
+        raise Exception("Max retries exceeded")
+    ```
+  </Accordion>
+
+  <Accordion title="How do I test my integration without using production quota?">
+    Most APIs on the portal offer a **sandbox environment** with a separate base URL and dedicated test credentials. You can find the sandbox URL and any test API keys in the API's documentation under **Environments**.
+
+    Sandbox environments:
+    - Do not consume your production quota.
+    - Return realistic but synthetic responses.
+    - May have their own rate limits (usually more generous).
+
+    <Tip>
+      Generate a separate API key scoped only to the sandbox API to keep your test and production credentials cleanly separated.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Where can I find the API specification (OpenAPI/Swagger)?">
+    Every API in the catalog includes a downloadable OpenAPI specification. Open the API's detail page in the **API Catalog** and click the **Download Spec** button to get the JSON or YAML file. You can import this directly into tools like Postman, Insomnia, or any OpenAPI-compatible code generator.
+
+    <Info>
+      The Developer Portal supports both OpenAPI 3.0 and OpenAPI 3.1 specifications. If you need an older Swagger 2.0 format, contact the API provider — some offer a legacy spec on request.
+    </Info>
+  </Accordion>
+</AccordionGroup>

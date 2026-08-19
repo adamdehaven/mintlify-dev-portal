@@ -1,0 +1,253 @@
+---
+title: "Accounts & Keys: Manage Your Profile and API Credentials"
+sidebarTitle: "Accounts"
+description: "Retrieve your account profile, manage API keys, and revoke credentials. Scope each key to specific subscribed APIs for precise access control."
+---
+
+Your account and API keys are the foundation of every interaction with the Developer Portal. The Accounts endpoints let you inspect your profile and plan details, enumerate the keys currently in use across your integrations, provision scoped keys for new services, and immediately revoke keys that may be compromised or are simply no longer needed. Treat your API keys like passwords — store them in environment variables or a secrets manager, never in source code.
+
+---
+
+## Get Account Profile
+
+Retrieve the profile and plan information associated with your authenticated account.
+
+`GET /account`
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://api.example.com/v1/account" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+### Response
+
+<ResponseField name="id" type="string">
+  Unique identifier for your account.
+</ResponseField>
+
+<ResponseField name="email" type="string">
+  Email address associated with your account.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Display name for your account or organization.
+</ResponseField>
+
+<ResponseField name="plan" type="string">
+  Your current Developer Portal plan tier (for example, `"developer"`, `"team"`, or `"enterprise"`).
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when the account was created.
+</ResponseField>
+
+<ResponseField name="subscription_count" type="integer">
+  Number of active API subscriptions attached to this account.
+</ResponseField>
+
+```json Example Response
+{
+  "id": "acct_9XkQ2mN7",
+  "email": "dev@yourcompany.com",
+  "name": "Your Company, Inc.",
+  "plan": "team",
+  "created_at": "2023-11-04T10:15:00Z",
+  "subscription_count": 4
+}
+```
+
+---
+
+## List API Keys
+
+Retrieve all API keys associated with your account, including their scope configuration, status, and last usage time.
+
+`GET /keys`
+
+<CodeGroup>
+
+```bash cURL
+curl --request GET \
+  --url "https://api.example.com/v1/keys" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+### Response
+
+Returns an array of API key objects. Note that the full key value is **never** returned by this endpoint — only the `prefix` is included for identification purposes.
+
+<ResponseField name="id" type="string">
+  Unique identifier for the API key. Use this value when revoking a key.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Human-readable label you assigned to this key.
+</ResponseField>
+
+<ResponseField name="prefix" type="string">
+  The first 8 characters of the key, useful for visually identifying a key without exposing its full value.
+</ResponseField>
+
+<ResponseField name="scopes" type="array">
+  List of `api_id` strings this key is authorized to call. An empty array means the key has access to all APIs you are currently subscribed to.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when the key was created.
+</ResponseField>
+
+<ResponseField name="last_used_at" type="string">
+  ISO 8601 timestamp of the most recent authenticated request made with this key, or `null` if it has never been used.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current status of the key: `active` or `revoked`.
+</ResponseField>
+
+```json Example Response
+{
+  "data": [
+    {
+      "id": "key_A1b2C3d4",
+      "name": "Production Backend",
+      "prefix": "pk_live_A",
+      "scopes": ["api_pay_01HX9Z", "api_msg_02KY7A"],
+      "created_at": "2024-01-10T09:00:00Z",
+      "last_used_at": "2024-03-31T22:58:41Z",
+      "status": "active"
+    },
+    {
+      "id": "key_E5f6G7h8",
+      "name": "Staging Environment",
+      "prefix": "pk_live_E",
+      "scopes": [],
+      "created_at": "2024-02-01T14:30:00Z",
+      "last_used_at": "2024-03-31T18:14:07Z",
+      "status": "active"
+    }
+  ]
+}
+```
+
+---
+
+## Create an API Key
+
+Generate a new API key for your account. Optionally restrict the key to a specific set of subscribed APIs by providing their `api_id` values as scopes.
+
+`POST /keys`
+
+<Warning>
+  The full key value is returned **only once** in the creation response and cannot be retrieved again. Copy it immediately and store it securely in a secrets manager or environment variable. If you lose the key, you must revoke it and create a new one.
+</Warning>
+
+<ParamField body="name" type="string" required>
+  A descriptive label for the key that identifies where or how it will be used (for example, `"Production Backend"` or `"CI/CD Pipeline"`).
+</ParamField>
+
+<ParamField body="scopes" type="array">
+  An array of `api_id` strings specifying which APIs this key is authorized to call. Omit this field entirely to grant access to all APIs you are currently subscribed to. Scopes cannot include APIs you have not subscribed to.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request POST \
+  --url "https://api.example.com/v1/keys" \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Production Backend",
+    "scopes": ["api_pay_01HX9Z", "api_msg_02KY7A"]
+  }'
+```
+
+</CodeGroup>
+
+### Response
+
+Returns the newly created key object, including the full `key` value.
+
+<ResponseField name="id" type="string">
+  Unique identifier for the new API key.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  The label you provided.
+</ResponseField>
+
+<ResponseField name="key" type="string">
+  The full API key value. **This is the only time this value will be returned.** Store it immediately.
+</ResponseField>
+
+<ResponseField name="prefix" type="string">
+  First 8 characters of the key for future identification.
+</ResponseField>
+
+<ResponseField name="scopes" type="array">
+  The scopes the key was created with. An empty array indicates unrestricted access across all subscribed APIs.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when the key was created.
+</ResponseField>
+
+<ResponseField name="last_used_at" type="string">
+  Always `null` for a newly created key.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Always `active` for a newly created key.
+</ResponseField>
+
+```json Example Response
+{
+  "id": "key_R9s0T1u2",
+  "name": "Production Backend",
+  "key": "pk_live_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6",
+  "prefix": "pk_live_A",
+  "scopes": ["api_pay_01HX9Z", "api_msg_02KY7A"],
+  "created_at": "2024-03-20T15:45:00Z",
+  "last_used_at": null,
+  "status": "active"
+}
+```
+
+---
+
+## Revoke an API Key
+
+Permanently revoke an API key. All requests authenticated with this key are rejected immediately after revocation. This action cannot be undone.
+
+`DELETE /keys/{key_id}`
+
+<ParamField path="key_id" type="string" required>
+  The unique identifier of the key to revoke. Retrieve key IDs from the [List API Keys](#list-api-keys) response.
+</ParamField>
+
+<CodeGroup>
+
+```bash cURL
+curl --request DELETE \
+  --url "https://api.example.com/v1/keys/key_A1b2C3d4" \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+</CodeGroup>
+
+Returns `204 No Content` on success with an empty response body.
+
+<Warning>
+  Revocation takes effect immediately. Any service still using the revoked key will start receiving `401 Unauthorized` responses. Make sure you rotate to a new key in all affected environments before revoking.
+</Warning>
+
+<Tip>
+  Adopt a regular key rotation schedule — create a replacement key, deploy it to all services, then revoke the old one. This minimizes disruption and keeps your integrations secure.
+</Tip>

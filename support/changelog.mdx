@@ -1,0 +1,79 @@
+---
+title: "Developer Portal Changelog: Latest Updates & Releases"
+sidebarTitle: "Changelog"
+description: "Track every new feature, improvement, and bug fix shipped to the Developer Portal — so you always know what's changed and what's coming next."
+---
+
+This changelog documents every significant update shipped to the Developer Portal — new features, improvements to existing functionality, and bug fixes that affect your integrations. Releases are listed in reverse chronological order. If a change requires action on your part (such as updating an API key scope or adjusting a request header), it is called out explicitly. Subscribe to release notifications in **Dashboard → Notification Preferences** to receive an email whenever a new version is published.
+
+---
+
+## v2.5.0 — March 2025
+
+**New Features**
+
+- **API catalog filtering by category.** You can now filter the API catalog by category tags such as Payments, Identity, Logistics, and Data Enrichment. Filters are combinable — select multiple categories to narrow results simultaneously. The active filter set is reflected in the URL, making filtered views shareable and bookmarkable.
+- **API key scoping.** When you create or edit an API key, you can now restrict it to a specific set of APIs. A scoped key returns a `403 Forbidden` response if it's used against any API outside its allowed list. This lets you issue tightly scoped keys for individual services or team members without exposing access to your entire API portfolio.
+
+**Improvements**
+
+- The API catalog search now indexes API descriptions and tag names in addition to API titles, returning more relevant results for natural-language queries.
+- Subscription plan comparison tables on API detail pages now display quota reset intervals (hourly, daily, or monthly) alongside the request limits.
+
+---
+
+## v2.4.0 — February 2025
+
+**Improvements**
+
+- **Usage dashboard hourly granularity.** The usage dashboard previously showed request counts at daily granularity only. It now supports **hourly breakdowns** for the trailing 7 days, making it much easier to identify traffic spikes, debug rate-limit events, and correlate usage patterns with your deployment activity. Toggle between hourly and daily views using the new granularity selector in the top-right corner of the usage chart.
+- Export to CSV from the usage dashboard now respects the selected time granularity — choosing hourly view exports hourly rows instead of daily summaries.
+
+**Bug Fixes**
+
+- Fixed an issue where the usage dashboard occasionally displayed stale data for the current billing period when switching between subscriptions rapidly.
+
+---
+
+## v2.3.0 — January 2025
+
+**New Features**
+
+- **OpenAPI 3.1 specification support.** The API catalog now fully supports OpenAPI 3.1 specifications, including the updated JSON Schema vocabulary, `webhooks` declarations, and `pathItem` references. API providers can upload 3.1 specs through the provider portal, and consumers can download them from the API detail page. OpenAPI 3.0 and Swagger 2.0 specs remain supported.
+
+**Improvements**
+
+- The **Download Spec** button on API detail pages now offers a format selector — choose between JSON and YAML before downloading.
+- API version history on detail pages now shows the publication date and a diff summary between consecutive versions.
+
+<Note>
+  If you use a code generator that doesn't yet support OpenAPI 3.1, download the 3.0 version of the spec from the format selector until your toolchain is updated.
+</Note>
+
+---
+
+## v2.2.1 — December 2024
+
+**Bug Fixes**
+
+- **Rate limit headers now returned on all endpoints.** A regression introduced in v2.2.0 caused `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers to be omitted from responses on a subset of API endpoints (specifically, endpoints routed through the secondary gateway cluster). This is now resolved — all endpoints consistently return rate-limit headers on every response, including `429 Too Many Requests` responses.
+- Fixed an edge case where the `Retry-After` header value was occasionally returned as a floating-point number instead of an integer, causing parse errors in some HTTP client libraries.
+- Corrected a display bug in the subscription management screen where canceled subscriptions were shown as active for up to 10 minutes after cancellation.
+
+<Warning>
+  If you built a workaround that polls the usage dashboard to infer remaining quota (due to the missing headers), you can now switch back to reading the `X-RateLimit-Remaining` header directly — it is reliable again as of this release.
+</Warning>
+
+---
+
+## v2.2.0 — November 2024
+
+**New Features**
+
+- **Sandbox environments for all APIs.** Every API in the catalog now exposes a sandbox environment with a dedicated base URL and isolated quota. Sandbox calls do not count against your production quota. Generate a sandbox-specific API key from **Dashboard → API Keys** by selecting **Sandbox** as the environment.
+- **Webhook event delivery.** You can now register webhook endpoints to receive real-time notifications when key account events occur — including quota threshold alerts (at 75% and 90% of your monthly limit), subscription renewals, and invoice generation. Configure webhooks under **Dashboard → Webhooks**.
+
+**Improvements**
+
+- Portal login now supports SAML 2.0 single sign-on for organizations on the Enterprise plan. Contact your account manager to configure your identity provider.
+- API detail pages load significantly faster thanks to lazy-loading of the OpenAPI specification viewer.

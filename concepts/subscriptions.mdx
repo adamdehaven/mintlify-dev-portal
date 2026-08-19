@@ -1,0 +1,103 @@
+---
+title: "API Subscriptions: Plans, Access, and Lifecycle Management"
+sidebarTitle: "Subscriptions"
+description: "Understand how API subscriptions work — from choosing a plan to managing credentials, quotas, upgrades, and cancellations in the Developer Portal."
+---
+
+A subscription is the formal relationship between your account and an API. When you subscribe to an API, the portal provisions your access credentials, assigns you a quota tier, and records which plan you're on. Every API call you make flows through this subscription record, which is how the portal enforces rate limits, measures usage, and calculates your bill. You can hold multiple active subscriptions simultaneously — one per API, or even multiple subscriptions to the same API on different plans for different environments.
+
+## Subscription Lifecycle
+
+The journey from discovering an API to making authenticated requests follows a consistent set of stages.
+
+<Steps>
+  <Step title="Browse the API Catalog">
+    Find the API you want in the catalog. Review its description, available plans, and OpenAPI specification to confirm it meets your needs.
+  </Step>
+  <Step title="Choose a Plan">
+    Select the subscription tier that matches your expected usage volume and feature requirements. See [Plans and Tiers](#plans-and-tiers) below for a description of typical options.
+  </Step>
+  <Step title="Subscribe">
+    Click **Subscribe** on the API listing page. If the plan requires payment, you'll be prompted to confirm or add a payment method. Free plans activate immediately without payment details.
+  </Step>
+  <Step title="Activation">
+    After subscribing, the portal generates your API credentials (typically an API key or OAuth client ID/secret). Activation usually completes within a few seconds.
+  </Step>
+  <Step title="Active — Start Making Requests">
+    Your subscription is live. Retrieve your credentials from the **Subscriptions** page in your dashboard and start making authenticated API requests.
+  </Step>
+  <Step title="Manage or Cancel">
+    At any time you can upgrade, downgrade, or cancel your subscription from the **Subscriptions** dashboard. See the sections below for details.
+  </Step>
+</Steps>
+
+## Plans and Tiers
+
+API providers configure their own plan names and limits. The tiers below are illustrative examples of what you'll commonly encounter on the portal:
+
+| Tier | Typical Use Case | Quota Example |
+|---|---|---|
+| **Free** | Evaluation and prototyping | 1,000 requests / month |
+| **Basic** | Small applications and side projects | 50,000 requests / month |
+| **Pro** | Production workloads with moderate traffic | 500,000 requests / month |
+| **Enterprise** | High-volume or SLA-backed integrations | Custom / negotiated |
+
+<Note>
+Exact quota numbers, rate limits, and included features vary per API and are always shown on the API's listing page before you subscribe.
+</Note>
+
+## What a Subscription Grants You
+
+Once a subscription is active, you receive:
+
+- **Access credentials** — an API key, OAuth client credentials, or another authentication mechanism specified by the API provider.
+- **Quota allocation** — a monthly (or rolling) call limit defined by your chosen plan.
+- **Rate limit tier** — a per-second or per-minute request ceiling that prevents bursting beyond the plan's concurrency limits.
+- **Plan-specific features** — some APIs gate capabilities (webhooks, higher data limits, priority routing) behind higher tiers.
+
+All credentials tied to a subscription are visible on the **Subscriptions** page under **My Credentials**. Rotate or revoke keys from the same page at any time.
+
+## Managing Multiple Subscriptions
+
+You can subscribe to as many APIs as you need, and each subscription is managed independently. From the **Subscriptions** dashboard you can:
+
+- View the status and plan of every active subscription at a glance.
+- Filter subscriptions by API, plan type, or status (active, suspended, cancelled).
+- Access credentials for any individual subscription without affecting others.
+
+## Upgrading or Downgrading a Plan
+
+To change your plan tier:
+
+1. Go to **Dashboard → Subscriptions** and find the subscription you want to change.
+2. Click **Manage** → **Change Plan**.
+3. Select your new plan and review the updated quota and pricing.
+4. Click **Confirm Change**.
+
+<Note>
+Upgrades take effect immediately — your new quota and rate limits apply as soon as you confirm. Downgrades take effect at the start of your next billing cycle so you retain your current limits until then.
+</Note>
+
+## Cancelling a Subscription
+
+To cancel a subscription:
+
+1. Go to **Dashboard → Subscriptions** and locate the subscription.
+2. Click **Manage** → **Cancel Subscription**.
+3. Review the cancellation notice (your credentials will be revoked at the end of the billing period).
+4. Click **Confirm Cancellation**.
+
+<Warning>
+Once a subscription is cancelled, your API credentials will stop working at the end of the current billing period. Ensure you have removed or replaced those credentials in your applications before the cancellation date to avoid service interruptions.
+</Warning>
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="API Catalog" icon="grid-2" href="/concepts/apis-overview">
+    Browse all available APIs, review plans, and find the right API for your use case.
+  </Card>
+  <Card title="Metering & Usage" icon="chart-bar" href="/concepts/metering-usage">
+    Track your request volume, understand quota limits, and set up usage alerts.
+  </Card>
+</CardGroup>
