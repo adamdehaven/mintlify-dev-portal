@@ -56,7 +56,7 @@ This changelog documents every significant update shipped to the Developer Porta
 
 **Bug Fixes**
 
-- **Rate limit headers now returned on all endpoints.** A regression introduced in v2.2.0 caused `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers to be omitted from responses on a subset of API endpoints (specifically, endpoints routed through the secondary gateway cluster). This is now resolved — all endpoints consistently return rate-limit headers on every response, including `429 Too Many Requests` responses.
+- **Rate limit headers now returned on all endpoints.** A regression introduced in v2.2.0 caused `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset` headers to be omitted from responses on a subset of API endpoints. This is now resolved — all endpoints consistently return rate-limit headers on every response, including `429 Too Many Requests` responses.
 - Fixed an edge case where the `Retry-After` header value was occasionally returned as a floating-point number instead of an integer, causing parse errors in some HTTP client libraries.
 - Corrected a display bug in the subscription management screen where canceled subscriptions were shown as active for up to 10 minutes after cancellation.
 

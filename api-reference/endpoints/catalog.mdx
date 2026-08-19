@@ -10,6 +10,10 @@ The Catalog endpoints give you a unified view of every API published in the Deve
 
 ## List All APIs
 
+Retrieve a paginated list of all APIs published in the Developer Portal. Use the query parameters to filter by category or search by keyword.
+
+`GET /catalog`
+
 <ParamField query="category" type="string">
   Filter results to a specific API category (for example, `"payments"`, `"messaging"`, or `"identity"`). Omit to return APIs across all categories.
 </ParamField>
